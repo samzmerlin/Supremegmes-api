@@ -13,6 +13,7 @@ var gameStatPairs;
 var games = [];
 var stats = [];
 var gamesw = [];
+var statsw = [];
 var otherstuff  = [];
 const d = new Date();
 let day = d.getDay();
