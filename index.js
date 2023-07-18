@@ -24,7 +24,8 @@ const pool = new Pool({
   database: 'data',
   user: 'api',
   password: process.env.PASSWORD,
-ssl: { rejectUnauthorized: false }
+ssl: true,
+sslmode: 'require' 
 });
 // Connect to the database
 pool.connect((err, client) => {
