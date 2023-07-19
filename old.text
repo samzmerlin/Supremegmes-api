@@ -1,0 +1,120 @@
+var express = require("express");
+var app = express();
+var http = require("http").Server(app);
+const io = require("socket.io")(http, {
+  cors: {
+    origin: "*",
+    methods: ["GET","HEAD","PUT","PATCH","POST","DELETE"]
+  }
+});
+var fs = require('fs');
+var sortedGames;
+var gameStatPairs;
+var games = [];
+var stats = [];
+var gamesWeek = [];
+var statsWeek =[];
+const d = new Date();
+let day = d.getDay();
+var blockedlinks = [];
+console.log(day);
+storedDay =  fs.readFileSync('day.txt', 'utf-8');
+console.log(storedDay + ", " + day);
+if(storedDay != day){
+    if(day < storedDay && day >= 0){
+        console.log("reseting week");
+        gamesWeek = [];
+        statsWeek = [];
+        fs.writeFile('gamesWeek.txt',  JSON.stringify(gamesWeek), 'utf-8', function (err) {if (err) throw err;});
+        fs.writeFile('statsWeek.txt',  JSON.stringify(statsWeek), 'utf-8', function (err) {if (err) throw err;});
+        console.log("popular this week reset");
+    }
+}
+fs.writeFile('day.txt',  day, 'utf-8', function (err) {if (err) throw err;});
+fs.readFile('stats.txt', 'utf-8', function(err, file){
+        console.log(file);
+    stats = JSON.parse(file);
+});
+fs.readFile('games.txt', 'utf-8', function(err, file){
+    console.log(file);
+    games = JSON.parse(file);
+});
+fs.readFile('statsWeek.txt', 'utf-8', function(err, file){
+        console.log(file);
+        statsWeek = JSON.parse(file);
+});
+fs.readFile('gamesWeek.txt', 'utf-8', function(err, file){
+    console.log(file);
+    gamesWeek = JSON.parse(file);
+});
+fs.readFile('emergency.txt', 'utf-8', function(err, file){
+    console.log(file);
+    blockedlinks = JSON.parse(file);
+});
+
+
+
+io.on("connection", function (socket) {
+    socket.on("game", function(data) {
+        if(games.includes(data)){
+            stats[games.indexOf(data)] +=1;
+            console.log("added 1 to the stat of " + data + " to get a result of " + stats[games.indexOf(data)]);
+        }else{
+            games.push(data);
+            stats.push(1);
+            console.log("added " + data);
+        }
+        if(gamesWeek.includes(data)){
+            statsWeek[gamesWeek.indexOf(data)] +=1;
+        }else{
+            gamesWeek.push(data);
+            statsWeek.push(1);
+        }
+        fs.writeFile('stats.txt',  JSON.stringify(stats), 'utf-8', function (err) {if (err) throw err;});
+        fs.writeFile('games.txt',  JSON.stringify(games), 'utf-8', function (err) {if (err) throw err;});
+        fs.writeFile('statsWeek.txt',  JSON.stringify(statsWeek), 'utf-8', function (err) {if (err) throw err;});
+        fs.writeFile('gamesWeek.txt',  JSON.stringify(gamesWeek), 'utf-8', function (err) {if (err) throw err;});
+    });
+    socket.on("get", function(data) {
+        if(blockedlinks.length != 0){
+            io.emit("emergency", blockedlinks);
+        }
+        if(games.length < 10){
+                    console.log("not enough data for popgames");
+        }else{
+        gameStatPairs = games.map((name, index) => ({ name, number: stats[index] }));
+        gameStatPairs.sort((a, b) => b.number - a.number);
+        sortedGames = gameStatPairs.map((pair) => pair.name);
+        io.emit("popgames", sortedGames.slice(0,10));
+        console.log(sortedGames);
+                }
+        if(gamesWeek.length < 10){
+                console.log("not enough data for popwgames");
+        }else{
+        gameStatPairs = gamesWeek.map((name, index) => ({ name, number: statsWeek[index] }));
+        gameStatPairs.sort((a, b) => b.number - a.number);
+        sortedGames = gameStatPairs.map((pair) => pair.name);
+        io.emit("popwgames", sortedGames.slice(0,10));
+        }
+    });
+    socket.on("emergency", function(data) {
+        console.log("emergency");
+        console.log(data);
+        blockedlinks.push(data);
+        fs.writeFile('emergency.txt',  JSON.stringify(blockedlinks), 'utf-8', function (err) {if (err) throw err;});
+    });
+        socket.on("remergency", function(data) {
+        console.log("emergency reverted");
+        console.log(data);
+        const index = blockedlinks.indexOf(data);
+        if (index > -1) { // only splice array when item is found
+            blockedlinks.splice(index, 1);
+        }
+        fs.writeFile('emergency.txt',  JSON.stringify(blockedlinks), 'utf-8', function (err) {if (err) throw err;});
+    });
+});
+
+
+http.listen(3000, function() {
+  console.log('listening on 3000');
+});
