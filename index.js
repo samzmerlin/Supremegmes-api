@@ -55,7 +55,7 @@ if(storedDay != day){
         console.log("reseting week");
         gamesw = [];
         statsw = [];
-        writeCollumn("week", gamesw, statsw, client);
+        writeCollmn("week", gamesw, statsw, client);
         otherstuff[0] = day;
         console.log("popular this week reset");
     }
