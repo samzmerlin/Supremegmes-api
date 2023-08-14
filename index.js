@@ -62,6 +62,10 @@ async function stuff(client) {
     }
     replaceStat("other", "day", day, client);
     io.on("connection", function (socket) {
+        socket.on('error', function (error) {
+            console.log("fuck an error");
+            console.log(error);
+        });
         socket.on("game", function (data) {
             if (games.includes(data)) {
                 stats[games.indexOf(data)] += 1;
@@ -100,12 +104,6 @@ async function stuff(client) {
                 io.emit("popwgames", sortedGames.slice(0, 10));
             }
         });
-        socket.on('error', function (error) {
-            console.log("fuck an error");
-            console.log(error);
-        });
-
-
     });
 
 
