@@ -19,7 +19,7 @@ const d = new Date();
 let day = d.getDay();
 // Create a connection pool
 const pool = new Pool({
-    host: 'dpg-cip9v0mnqql4qa6tfai0-a.oregon-postgres.render.com',
+    host: process.env.HOST,
     port: 5432,
     database: 'data',
     user: 'api',
