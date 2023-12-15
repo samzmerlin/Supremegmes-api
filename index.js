@@ -62,6 +62,23 @@ async function stuff(client) {
     }
     replaceStat("other", "day", day, client);
     io.on("connection", function (socket) {
+         if (games.length < 10) {
+                console.log("not enough data for popgames");
+            } else {
+                gameStatPairs = games.map((name, index) => ({ name, number: stats[index] }));
+                gameStatPairs.sort((a, b) => b.number - a.number);
+                sortedGames = gameStatPairs.map((pair) => pair.name);
+                io.emit("popgames", sortedGames.slice(0, 10));
+                console.log(sortedGames);
+            }
+            if (gamesw.length < 10) {
+                console.log("not enough data for popwgames");
+            } else {
+                gameStatPairs = gamesw.map((name, index) => ({ name, number: statsw[index] }));
+                gameStatPairs.sort((a, b) => b.number - a.number);
+                sortedGames = gameStatPairs.map((pair) => pair.name);
+                io.emit("popwgames", sortedGames.slice(0, 10));
+            }
         socket.on('error', function (error) {
             console.log("fuck an error");
             console.log(error);
@@ -84,25 +101,6 @@ async function stuff(client) {
                 addPair("week", data, 1, client);
             }
             console.log("added 1 to the stat of " + data + " to get a result of " + stats[games.indexOf(data)]);
-        });
-        socket.on("get", function (data) {
-            if (games.length < 10) {
-                console.log("not enough data for popgames");
-            } else {
-                gameStatPairs = games.map((name, index) => ({ name, number: stats[index] }));
-                gameStatPairs.sort((a, b) => b.number - a.number);
-                sortedGames = gameStatPairs.map((pair) => pair.name);
-                io.emit("popgames", sortedGames.slice(0, 10));
-                console.log(sortedGames);
-            }
-            if (gamesw.length < 10) {
-                console.log("not enough data for popwgames");
-            } else {
-                gameStatPairs = gamesw.map((name, index) => ({ name, number: statsw[index] }));
-                gameStatPairs.sort((a, b) => b.number - a.number);
-                sortedGames = gameStatPairs.map((pair) => pair.name);
-                io.emit("popwgames", sortedGames.slice(0, 10));
-            }
         });
     });
 
