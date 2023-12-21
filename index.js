@@ -42,7 +42,7 @@ async function stuff(client) {
     stats = await getData("alltime", "stats", client);
     otherstuff = await getData("other", "stats", client);
     stats = stats.map(Number);
-    statsw = statsw..map(Number);
+    statsw = statsw.map(Number);
     console.log(stats);
     console.log(games);
     console.log(otherstuff);
