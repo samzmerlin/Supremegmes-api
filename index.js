@@ -36,11 +36,13 @@ pool.connect((err, client) => {
 });
 
 async function stuff(client) {
-    statsw = await getData("week", "stats", client).map(Number);
+    statsw = await getData("week", "stats", client);
     games = await getData("alltime", "games", client);
     gamesw = await getData("week", "games", client);
-    stats = await getData("alltime", "stats", client).map(Number);
+    stats = await getData("alltime", "stats", client);
     otherstuff = await getData("other", "stats", client);
+    stats = stats.map(Number);
+    statsw = statsw..map(Number);
     console.log(stats);
     console.log(games);
     console.log(otherstuff);
